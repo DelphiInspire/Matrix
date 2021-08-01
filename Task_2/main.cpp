@@ -72,11 +72,18 @@ int main()
 								 {'g', 'o', 'p'},
 								 {'r', 's', 't'} };
 	int input = 5;
-	Matrix help(input);
+	//Matrix help(input);
+
 	int* input_array[4];
 	for (size_t i = 0; i < 4; i++)
 		input_array[i] = input_2d_int[i];
-	Matrix a(input_array, 4, 3);
+	char t[] = "[a,b,c; d,e,f; g,h,i]";
+	Matrix a(t);
+
+	a.symbolMatrixRepresentation();
+
+
+	
 	//int Matrix constructor
 	//Matrix a(input_2d_int, 4, 3);
 	//char Matrix constructor
