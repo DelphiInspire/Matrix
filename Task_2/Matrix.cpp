@@ -5,157 +5,137 @@ Matrix::Matrix()
 	std::cout << "Simple constructor" << std::endl;
 }
 
-Matrix::Matrix(int* a, int rows, int colms) : Colms{ colms }, Rows{rows}
+Matrix::Matrix(int* input_data[], int rows, int columns) 
 {
 	Data_Type = 'i';
-	getMemory4StoringData(Rows, Colms, Data_Type);
+	Columns = columns;
+	Rows = rows;
+	getMemory();
 
-	initData_int(a, rows, colms);
+	initData_int(input_data);
 	std::cout << "int constructor worked" << std::endl;
 }
 
-Matrix::Matrix(float* a, int rows, int colms) : Colms{ colms }, Rows{ rows }
+Matrix::Matrix(int input_number)
 {
-	Data_Type = 'f';
-	getMemory4StoringData(Rows, Colms, Data_Type);
+	Data_Type = 'i';
+	Columns = 1;
+	Rows = 1;
+	getMemory();
 
-	initData_float(a, rows, colms);
-	std::cout << "float constructor worked" << std::endl;
+	//initData_int(&input_number);
+	std::cout << "int constructor worked" << std::endl;
+
 }
 
-Matrix::Matrix(char* a, int rows, int colms) :Colms{ colms }, Rows{rows}
+Matrix::Matrix(char* input_data, int rows, int columns) 
 {
-	verifyCharinput(a, rows, colms);
+	Columns = columns;
+	Rows = rows;
+	verifyCharinput(input_data);
 	if (correct_charData)
 	{
 		Data_Type = 'c';
-		getMemory4StoringData(Rows, Colms, Data_Type);
+		getMemory();
 
-		initData_char(a, rows, colms);
+		initData_char(input_data);
 		std::cout << "char constructor worked" << std::endl;
 	}
 }
 
-Matrix::Matrix(const Matrix& m):Rows(m.Rows), Colms(m.Colms), Data_Type(m.Data_Type)
+Matrix::Matrix(const Matrix& copy_matrix)
 {	
-	if (m.Data_Type == 'i')
+	Rows = copy_matrix.Rows;
+	Columns = copy_matrix.Columns;
+	Data_Type = copy_matrix.Data_Type;
+	if (copy_matrix.Data_Type == 'i')
 	{
-		getMemory4StoringData(Rows, Colms, m.Data_Type);
+		getMemory();
 		for (size_t row = 0; row <= Rows - 1; row++)
-			for (size_t colm = 0; colm <= Colms - 1; colm++)
-				StorageData_int[row][colm] = m.StorageData_int[row][colm];
+			for (size_t colm = 0; colm <= Columns - 1; colm++)
+				StorageData_int[row][colm] = copy_matrix.StorageData_int[row][colm];
 		std::cout << "int copy constructor worked" << std::endl;
 	}
-
-	else if (m.Data_Type == 'f')
+	else if (copy_matrix.Data_Type == 'c')
 	{
-		getMemory4StoringData(Rows, Colms, m.Data_Type);
+		getMemory();
 		for (size_t row = 0; row <= Rows - 1; row++)
-			for (size_t colm = 0; colm <= Colms - 1; colm++)
-				StorageData_float[row][colm] = m.StorageData_float[row][colm];
-		std::cout << "float copy constructor worked" << std::endl;
-	}
-	else if (m.Data_Type == 'c')
-	{
-		getMemory4StoringData(Rows, Colms, m.Data_Type);
-		for (size_t row = 0; row <= Rows - 1; row++)
-			for (size_t colm = 0; colm <= Colms - 1; colm++)
-				StorageData_char[row][colm] = m.StorageData_char[row][colm];
+			for (size_t colm = 0; colm <= Columns - 1; colm++)
+				StorageData_char[row][colm] = copy_matrix.StorageData_char[row][colm];
 		std::cout << "char copy constructor worked" << std::endl;
 	}
 		
 	
 }
 
-Matrix::Matrix(Matrix&& m) :Rows(m.Rows), Colms(m.Colms), Data_Type(m.Data_Type)
+Matrix::Matrix(Matrix&& moving_matrix)
 {
-	m.Colms = 0;
-	m.Rows = 0;
-	if (m.StorageData_float != nullptr)
+	Columns = moving_matrix.Columns;
+	moving_matrix.Columns = 0;
+	Rows = moving_matrix.Rows;
+	moving_matrix.Rows = 0;
+	Data_Type = moving_matrix.Data_Type;
+	moving_matrix.Data_Type = '0';
+	if (moving_matrix.StorageData_int != nullptr)
 	{
-		StorageData_float = m.StorageData_float;
-		m.StorageData_float = nullptr;
-		std::cout << "float moving constructor worked" << std::endl;
-	}
-	if (m.StorageData_int != nullptr)
-	{
-		StorageData_int = m.StorageData_int;
-		m.StorageData_int = nullptr;
+		StorageData_int = moving_matrix.StorageData_int;
+		moving_matrix.StorageData_int = nullptr;
 		std::cout << "int moving constructor worked" << std::endl;
 	}
-	else if (m.StorageData_char != nullptr)
+	else if (moving_matrix.StorageData_char != nullptr)
 	{
-		StorageData_char = m.StorageData_char;
-		m.StorageData_char = nullptr;
+		StorageData_char = moving_matrix.StorageData_char;
+		moving_matrix.StorageData_char = nullptr;
 		std::cout << "char moving constructor worked" << std::endl;
 	}
 	
 	
 }
 
-void Matrix::getMemory4StoringData(const int& rows, const int& colms, const char& data_type)
+void Matrix::getMemory()
 {
-	if (data_type == 'i')
+	if (Data_Type == 'i')
 	{
-		StorageData_int = (int**) new int* [Rows];
+		StorageData_int = new int* [Rows];
 
 		for (size_t i = 0; i < Rows; i++)
-			StorageData_int[i] = (int*) new int[Colms];
+			StorageData_int[i] = (int*) new int[Columns];
 	}
-
-	else if (data_type == 'f')
+	else if (Data_Type == 'c')
 	{
-		StorageData_float = (float**) new float* [Rows];
-
+		StorageData_char = new char* [Rows];
 		for (size_t i = 0; i < Rows; i++)
-			StorageData_float[i] = (float*) new float[Colms];
-	}
-	else if (data_type == 'c')
-	{
-		StorageData_char = (char**) new char* [Rows];
-		for (size_t i = 0; i < Rows; i++)
-			StorageData_char[i] = (char*) new char[Colms];
+			StorageData_char[i] = (char*) new char[Columns];
 	}
 }
 
-void Matrix::initData_int(int *a, const int& rows, const int& colms)
+void Matrix::initData_int(int *input_data[])
 {
-	for (size_t row = 0; row < rows; row++)
-		for (size_t colm = 0; colm < colms; colm++)
+	for (size_t row = 0; row < Rows; row++)
+		for (size_t colm = 0; colm < Columns; colm++)
 		{
-			StorageData_int[row][colm] = a[row * colms + colm];
+			StorageData_int[row][colm] = input_data[row][colm];//[row * Columns + colm];
 		}
 			
 			
 }
 
-void Matrix::initData_float(float* a, const int& rows, const int& colms)
+void Matrix::initData_char(char* input_data)
 {
-	for (size_t row = 0; row < rows; row++)
-		for (size_t colm = 0; colm < colms; colm++)
+	for (size_t row = 0; row < Rows; row++)
+		for (size_t colm = 0; colm < Columns; colm++)
 		{
-			StorageData_float[row][colm] = a[row * colms + colm];
-		}
-
-
-}
-
-void Matrix::initData_char(char* a, const int& rows, const int& colms)
-{
-	for (size_t row = 0; row < rows; row++)
-		for (size_t colm = 0; colm < colms; colm++)
-		{
-			StorageData_char[row][colm] = a[row * colms + colm];
+			StorageData_char[row][colm] = input_data[row * Columns + colm];
 		}
 			
 }
 
-void Matrix::verifyCharinput(const char* a, const int& row, const int& colm)
+void Matrix::verifyCharinput(const char* input_data)
 {
-	for (size_t i = 0; i < row; i++)
-		for (size_t j = 0; j < colm; j++)
+	for (size_t i = 0; i < Rows; i++)
+		for (size_t j = 0; j < Columns; j++)
 		{
-			if (a[i * colm + j] < char(97) || a[i * colm + j] > char(122))
+			if (input_data[i * Columns + j] < char(97) || input_data[i * Columns + j] > char(122))
 			{
 				correct_charData = false;
 				std::cout << "Invalid input, matrix wasn`t constructed" << std::endl;
@@ -165,32 +145,14 @@ void Matrix::verifyCharinput(const char* a, const int& row, const int& colm)
 		}
 }
 
-std::ostream& operator<<(std::ostream& out, const Matrix& m)
+Matrix Matrix::operator=(const Matrix& copy_matrix)
 {
-	int quantityElements{ (m.Colms - 1) * (m.Rows - 1) };
-
-	out << '[';
-		for (size_t row = 0; row < m.Rows; row++)
-			for (size_t colm = 0; colm < m.Colms; colm++)
-			{
-				if (m.Data_Type == 'i') out << m.StorageData_int[row][colm]; 
-				if (m.Data_Type == 'f') out << m.StorageData_float[row][colm];
-				if(m.Data_Type == 'c') out << m.StorageData_char[row][colm];
-				if (row * colm != quantityElements) out << ',' << ' ';
-				if ((colm == m.Colms - 1) && (row != m.Rows - 1)) out << std::endl;
-			}
-	out << ']';
-	return out;
-}
-
-Matrix Matrix::operator=(const Matrix& m)
-{
-	if (&m == this)
+	if (&copy_matrix == this)
 		return *this;
 
 	if (StorageData_int != nullptr)
 	{
-		if (Colms > 0)
+		if (Columns > 0)
 		{
 			for (size_t i = 0; i < Rows; i++)
 				delete[] StorageData_int[i];
@@ -199,22 +161,9 @@ Matrix Matrix::operator=(const Matrix& m)
 			delete[] StorageData_int;
 		StorageData_int = nullptr;
 	}
-	
-	if (StorageData_float != nullptr)
-	{
-		if (Colms > 0)
-		{
-			for (size_t i = 0; i < Rows; i++)
-				delete[] StorageData_float[i];
-		}
-
-		if (Rows > 0)
-			delete[] StorageData_float;
-		StorageData_float = nullptr;
-	}
 	if (StorageData_char != nullptr)
 	{
-		if (Colms > 0)
+		if (Columns > 0)
 		{
 			for (size_t i = 0; i < Rows; i++)
 				delete[] StorageData_char[i];
@@ -224,112 +173,81 @@ Matrix Matrix::operator=(const Matrix& m)
 			delete[] StorageData_char;
 		StorageData_char = nullptr;
 	}
-	Rows = m.Rows;
-	Colms = m.Colms;
-	Data_Type = m.Data_Type;
-	getMemory4StoringData(Rows, Colms, m.Data_Type);
+	Rows = copy_matrix.Rows;
+	Columns = copy_matrix.Columns;
+	Data_Type = copy_matrix.Data_Type;
+	getMemory();
 
-	if (m.Data_Type == 'i')
+	if (copy_matrix.Data_Type == 'i')
 	{
 		for (size_t row = 0; row <= Rows - 1; row++)
-			for (size_t colm = 0; colm <= Colms - 1; colm++)
-				StorageData_int[row][colm] = m.StorageData_int[row][colm];
+			for (size_t colm = 0; colm <= Columns - 1; colm++)
+				StorageData_int[row][colm] = copy_matrix.StorageData_int[row][colm];
 		std::cout << "int copy operator worked" << std::endl;
 
 	}
-	if (m.Data_Type == 'f')
+	if (copy_matrix.Data_Type == 'c')
 	{
 		for (size_t row = 0; row <= Rows - 1; row++)
-			for (size_t colm = 0; colm <= Colms - 1; colm++)
-				StorageData_float[row][colm] = m.StorageData_float[row][colm];
-		std::cout << "float copy operator worked" << std::endl;
-	}
-	if (m.Data_Type == 'c')
-	{
-		for (size_t row = 0; row <= Rows - 1; row++)
-			for (size_t colm = 0; colm <= Colms - 1; colm++)
-				StorageData_char[row][colm] = m.StorageData_char[row][colm];
+			for (size_t colm = 0; colm <= Columns - 1; colm++)
+				StorageData_char[row][colm] = copy_matrix.StorageData_char[row][colm];
 		std::cout << "char copy operator worked" << std::endl;
 	}		
 }
 
-Matrix& Matrix::operator=(Matrix&& m)
+Matrix& Matrix::operator=(Matrix&& moving_matrix)
 {
-	if (&m == this)
+	if (&moving_matrix == this)
 		return *this;
 	
-	Rows = m.Rows;
-	Colms = m.Colms;
-	Data_Type = m.Data_Type;
-	m.Rows = 0;
-	m.Colms = 0;
-	m.Data_Type = 0;
-	if (m.StorageData_float != nullptr)
+	Rows = moving_matrix.Rows;
+	Columns = moving_matrix.Columns;
+	Data_Type = moving_matrix.Data_Type;
+	moving_matrix.Rows = 0;
+	moving_matrix.Columns = 0;
+	moving_matrix.Data_Type = 0;
+	if (moving_matrix.StorageData_int != nullptr)
 	{
-		StorageData_float = m.StorageData_float;
-		m.StorageData_float = nullptr;
-		std::cout << "float moving operator worked" << std::endl;
-	}
-	if (m.StorageData_int != nullptr)
-	{
-		StorageData_int = m.StorageData_int;
-		m.StorageData_int = nullptr;
+		StorageData_int = moving_matrix.StorageData_int;
+		moving_matrix.StorageData_int = nullptr;
 		std::cout << "int moving operator worked" << std::endl;
 	}
-	if (m.StorageData_char != nullptr)
+	if (moving_matrix.StorageData_char != nullptr)
 	{
-		StorageData_char = m.StorageData_char;
-		m.StorageData_char = nullptr;
+		StorageData_char = moving_matrix.StorageData_char;
+		moving_matrix.StorageData_char = nullptr;
 		std::cout << "char moving operator worked" << std::endl;
 	}
 
 }
 
-float Matrix::operator()(int i, int j) 
-{
-	if ((i < Rows) && (j < Colms)) valid_index = true;
-	else valid_index = false;
 
-	assert(valid_index && "Invalid matrix index");
-
-	if (StorageData_float != nullptr) return StorageData_float[i][j];
-	else if (StorageData_int != nullptr) return StorageData_int[i][j];
-	else if (StorageData_char != nullptr) return StorageData_char[i][j];
-	else return -1;
-}
 
 void Matrix::convertNumData2char()
-{
-	if (StorageData_char != nullptr)
-		std::cout << *this << std::endl;
-	else
-	{ 
-		char* buffer;
-		int counter(0);
-		buffer =  new char [Rows * Colms];
+{ 
+	char* buffer;
+	int counter(0);
+	buffer =  new char [Rows * Columns];
 	
-		for (size_t row = 0; row < Rows; row++)
-			for (size_t colm = 0; colm < Colms; colm++)
-			{
-				buffer[row * Colms + colm] = char(97 + counter);
-				counter++;
-				if (counter > 25) counter = 0;
-			}
-		Matrix* symbolView = new Matrix(buffer, Rows, Colms);
+	for (size_t row = 0; row < Rows; row++)
+		for (size_t colm = 0; colm < Columns; colm++)
+		{
+			buffer[row * Columns + colm] = char(97 + counter);
+			counter++;
+			if (counter > 25) counter = 0;
+		}
+	Matrix* symbolView = new Matrix(buffer, Rows, Columns);
 
-		std::cout << *symbolView << std::endl;
+	delete[] buffer;
 
-		delete[] buffer;
-
-		symbolView->~Matrix();
-	}
+	symbolView->~Matrix();
 }
 
 Matrix::~Matrix()
 {
 	if (StorageData_int != nullptr)
 	{
-		if (Colms > 0)
+		if (Columns > 0)
 			for (size_t i = 0; i < Rows; i++)
 				delete[] StorageData_int[i];
 		if (Rows > 0)
@@ -338,19 +256,9 @@ Matrix::~Matrix()
 		std::cout << "int destructor worked" << std::endl;
 
 	}
-	if (StorageData_float != nullptr)
-	{
-		if (Colms > 0)
-			for (size_t i = 0; i < Rows; i++)
-				delete[] StorageData_float[i];
-		if (Rows > 0)
-			delete[] StorageData_float;
-		StorageData_float = nullptr;
-		std::cout << "float destructor worked" << std::endl;
-	}
 	if (StorageData_char != nullptr)
 	{
-		if (Colms > 0)
+		if (Columns > 0)
 			for (size_t i = 0; i < Rows; i++)
 				delete[] StorageData_char[i];
 		if (Rows > 0)
