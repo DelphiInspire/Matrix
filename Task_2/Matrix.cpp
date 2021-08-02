@@ -64,8 +64,8 @@ Matrix::Matrix(Matrix&& moving_matrix)
 void Matrix::getMemory()
 {
 	StorageData_int = new int* [Rows];
-	for (size_t i = 0; i < Rows; i++)
-		StorageData_int[i] = (int*) new int[Columns];
+	for (size_t row = 0; row < Rows; row++)
+		StorageData_int[row] = (int*) new int[Columns];
 }
 
 void Matrix::initData_int(int** input_data)
@@ -89,8 +89,8 @@ Matrix Matrix::operator=(const Matrix& copy_matrix)
 	{
 		if (Columns > 0)
 		{
-			for (size_t i = 0; i < Rows; i++)
-				delete[] StorageData_int[i];
+			for (size_t row = 0; row < Rows; row++)
+				delete[] StorageData_int[row];
 		}
 		if (Rows > 0)
 			delete[] StorageData_int;
