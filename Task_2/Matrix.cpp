@@ -12,6 +12,7 @@ Matrix::Matrix(int** input_data, int rows, int columns)
 	getMemory();
 
 	initData_int(input_data);
+	
 	std::cout << "int constructor worked" << std::endl;
 }
 
@@ -126,7 +127,7 @@ Matrix& Matrix::operator=(Matrix&& moving_matrix)
 void Matrix::symbolMatrixRepresentation()
 {
 	unsigned int inner_counter(0);
-	std::cout << '[';
+	std::cout << "[";
 
 	for (size_t rows = 0; rows < Rows; rows++)
 	{
@@ -134,44 +135,41 @@ void Matrix::symbolMatrixRepresentation()
 		{
 			std::cout << char(97 + inner_counter);
 			if (colms != Columns - 1)
-				std::cout << ',';
+				std::cout << ",";
 			inner_counter++;
 		}
 		if (rows != Rows - 1)
-			std::cout << ';' << '\t';
+			std::cout << ";"<<'\t';
 	}
-	std::cout << ']' << std::endl;
+	std::cout << "]" << std::endl;
 }
 
 void Matrix::verifyCharinput(const char* input_line)
 {
-	unsigned int bracket_counter(0);
 	unsigned int elements_counter(0);
 	unsigned int row_counter(1);
-	unsigned int column_counter(0);
-	unsigned int tab_counter(0);
+	unsigned int comma_counter(0);
 	for (size_t carriage = 0; carriage < strlen(input_line); carriage++)
 	{
-		if (input_line[carriage] == '[' || input_line[carriage] == ']')
-			bracket_counter++;
-		else if (input_line[carriage] >= char(97) || input_line[carriage] >= char(122))
+		if (input_line[carriage] >= char(97) || input_line[carriage] >= char(122))
 			elements_counter++;
 		else if (input_line[carriage] == ',')
-			column_counter++;
+			comma_counter++;
 		else if (input_line[carriage] == ';')
 			row_counter++;
-		else if (input_line[carriage] == '\t')
-			tab_counter++;
 	}
-	if (bracket_counter != 2)
-		std::cout << "Error, check brackets in the input data";
-	else if (elements_counter%row_counter != 0 && tab_counter != column_counter)
-		std::cout << "Error, please check matrix dimension or type of all input elements";
-	else
-	{
-		Rows = row_counter;
-		Columns = static_cast<int>(elements_counter / row_counter);
-	}
+	
+	assert(input_line[0] == '[' && input_line[strlen(input_line) - 1] == ']' &&
+			"Error, check brackets in the input data");
+	
+		
+	assert(elements_counter % row_counter == 0 && comma_counter % row_counter == 0 
+			&& "Error, please check matrix dimension or type of all input elements");
+		
+	
+	Rows = row_counter;
+	Columns = static_cast<int>(elements_counter / row_counter);
+	
 }
 
 Matrix::~Matrix()
