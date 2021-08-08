@@ -1,189 +1,385 @@
 #include "Matrix.h"
+#include<vector>
+
+
 
 Matrix::Matrix()
 {
-	std::cout << "Simple constructor" << std::endl;
+	std::cout << "Simple constructor worked" << std::endl;
 }
 
-Matrix::Matrix(int** input_data, int rows, int columns) 
+Matrix::Matrix(int** input_data, int rows, int columns)
 {
-	Columns = columns;
-	Rows = rows;
+	fcolumns = columns;
+	frows = rows;
 	getMemory();
 
-	initData_int(input_data);
+	initData(input_data);
 	
 	std::cout << "int constructor worked" << std::endl;
 }
 
-Matrix::Matrix(int input_number)
+Matrix* Matrix::CreateDataIntoMatrix(int** input_data, int rows, int columns)
 {
-	Columns = 1;
-	Rows = 1;
+	bool is_valid;
+	is_valid = verifyDataInput(input_data, rows, columns);
+	if (is_valid)
+	{
+		return new Matrix(input_data, rows, columns);
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+
+Matrix::Matrix(int input_number, int rows, int columns)
+{
+	fcolumns = columns;
+	frows = rows;
 	getMemory();
 
 	std::cout << "int constructor worked" << std::endl;
-
 }
 
-Matrix::Matrix(char* input_line)
+Matrix* Matrix::CreateNumberIntoMatrix(int input_number, int rows, int columns)
 {
-	verifyCharinput(input_line);
+	if (rows == 1 & columns == 1)
+	{
+		return new Matrix(input_number, rows, columns);
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+Matrix::Matrix(char* input_line, int rows, int columns)
+{
+	fcolumns = columns;
+	frows = rows;
 	getMemory();
-	initData_int();
+	initData();
 	std::cout << "int constructor with char input worked" << std::endl;
 }
 
 
+Matrix* Matrix::CreateStringIntoMatrix(char* input_line, int rows, int columns)
+{
+	bool is_valid;
+	is_valid = verifyCharinput(input_line, rows, columns);
+	if (is_valid)
+	{
+		return new Matrix(input_line, rows, columns);
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
 Matrix::Matrix(const Matrix& copy_matrix)
 {	
-	Rows = copy_matrix.Rows;
-	Columns = copy_matrix.Columns;
+	frows = copy_matrix.frows;
+	fcolumns = copy_matrix.fcolumns;
 	getMemory();
-	for (size_t row = 0; row <= Rows - 1; row++)
-		for (size_t colm = 0; colm <= Columns - 1; colm++)
-			StorageData_int[row][colm] = copy_matrix.StorageData_int[row][colm];
+	for (size_t row = 0; row <= frows - 1; row++)
+	{
+		for (size_t colm = 0; colm <= fcolumns - 1; colm++)
+		{
+			fstorageData[row][colm] = copy_matrix.fstorageData[row][colm];
+		}
+			
+	}
+		
 	std::cout << "int copy constructor worked" << std::endl;	
 }
 
 Matrix::Matrix(Matrix&& moving_matrix)
 {
-	Columns = moving_matrix.Columns;
-	moving_matrix.Columns = 0;
-	Rows = moving_matrix.Rows;
-	moving_matrix.Rows = 0;
+	fcolumns = moving_matrix.fcolumns;
+	moving_matrix.fcolumns = 0;
+	frows = moving_matrix.frows;
+	moving_matrix.frows = 0;
 
-	if (moving_matrix.StorageData_int != nullptr)
+	if (moving_matrix.fstorageData != nullptr)
 	{
-		StorageData_int = moving_matrix.StorageData_int;
-		moving_matrix.StorageData_int = nullptr;
+		fstorageData = moving_matrix.fstorageData;
+		moving_matrix.fstorageData = nullptr;
 		std::cout << "int moving constructor worked" << std::endl;
 	}	
 }
 
 void Matrix::getMemory()
 {
-	StorageData_int = new int* [Rows];
-	for (size_t row = 0; row < Rows; row++)
-		StorageData_int[row] = (int*) new int[Columns];
+	fstorageData = new int* [frows];
+	for (size_t row = 0; row < frows; row++)
+	{
+		fstorageData[row] = new int[fcolumns];
+	}
+		
 }
 
-void Matrix::initData_int(int** input_data)
+void Matrix::initData(int** input_data)
 {
-	for (size_t row = 0; row < Rows; row++)
-		for (size_t colm = 0; colm < Columns; colm++)
+	for (size_t row = 0; row < frows; row++)
+	{
+		for (size_t colm = 0; colm < fcolumns; colm++)
 		{
 			if (input_data != nullptr)
-				StorageData_int[row][colm] = input_data[row][colm];//[row * Columns + colm];
-			else StorageData_int[row][colm] = 0;
+			{
+				fstorageData[row][colm] = input_data[row][colm];
+			}
+			else
+			{
+				fstorageData[row][colm] = 0;
+			}
 		}
+	}
+		
 }
 
 
 Matrix Matrix::operator=(const Matrix& copy_matrix)
 {
 	if (&copy_matrix == this)
-		return *this;
-
-	if (StorageData_int != nullptr)
 	{
-		if (Columns > 0)
-		{
-			for (size_t row = 0; row < Rows; row++)
-				delete[] StorageData_int[row];
-		}
-		if (Rows > 0)
-			delete[] StorageData_int;
-		StorageData_int = nullptr;
+		return *this;
 	}
+	else 
+	{
+		if (fstorageData != nullptr)
+		{
+			if (fcolumns > 0)
+			{
+				for (size_t row = 0; row < frows; row++)
+				{
+					delete[] fstorageData[row];
+				}
+			}
+			if (frows > 0)
+			{
+				delete[] fstorageData;
+			}
+			fstorageData = nullptr;
+		}
 
-	Rows = copy_matrix.Rows;
-	Columns = copy_matrix.Columns;
-	getMemory();
+		frows = copy_matrix.frows;
+		fcolumns = copy_matrix.fcolumns;
+		getMemory();
 
-	for (size_t row = 0; row <= Rows - 1; row++)
-		for (size_t colm = 0; colm <= Columns - 1; colm++)
-			StorageData_int[row][colm] = copy_matrix.StorageData_int[row][colm];
+		for (size_t row = 0; row <= frows - 1; row++)
+		{
+			for (size_t colm = 0; colm <= fcolumns - 1; colm++)
+			{
+				fstorageData[row][colm] = copy_matrix.fstorageData[row][colm];
+			}
+		}
+		return *this;
+	}
+		
 	std::cout << "int copy operator worked" << std::endl;		
 }
 
 Matrix& Matrix::operator=(Matrix&& moving_matrix)
 {
 	if (&moving_matrix == this)
-		return *this;
-	
-	Rows = moving_matrix.Rows;
-	Columns = moving_matrix.Columns;
-	moving_matrix.Rows = 0;
-	moving_matrix.Columns = 0;
-	if (moving_matrix.StorageData_int != nullptr)
 	{
-		StorageData_int = moving_matrix.StorageData_int;
-		moving_matrix.StorageData_int = nullptr;
-		std::cout << "int moving operator worked" << std::endl;
+		return *this;
+	}
+	else
+	{
+		frows = moving_matrix.frows;
+		fcolumns = moving_matrix.fcolumns;
+		moving_matrix.frows = 0;
+		moving_matrix.fcolumns = 0;
+		if (moving_matrix.fstorageData != nullptr)
+		{
+			fstorageData = moving_matrix.fstorageData;
+			moving_matrix.fstorageData = nullptr;
+			std::cout << "int moving operator worked" << std::endl;
+		}
+		return *this;
 	}
 }
 
-void Matrix::symbolMatrixRepresentation()
+std::string Matrix::ToString()
 {
 	unsigned int inner_counter(0);
-	std::cout << "[";
-
-	for (size_t rows = 0; rows < Rows; rows++)
+	std::string result;
+	
+	result.push_back('[');
+	if (this != nullptr)
+	for (size_t rows = 0; rows < frows; rows++)
 	{
-		for (size_t colms = 0; colms < Columns; colms++)
+		for (size_t colms = 0; colms < fcolumns; colms++)
 		{
-			std::cout << char(97 + inner_counter);
-			if (colms != Columns - 1)
-				std::cout << ",";
+			result.push_back(char(97 + inner_counter));
+			if (colms != fcolumns - 1)
+			{
+				result.push_back(',');
+			}
 			inner_counter++;
 		}
-		if (rows != Rows - 1)
-			std::cout << ";"<<'\t';
+		if (rows != frows - 1)
+		{
+			result.push_back(';');
+			result.push_back(char(9));
+		}
+			
 	}
-	std::cout << "]" << std::endl;
+	result.push_back(']');
+
+	return result;
 }
 
-void Matrix::verifyCharinput(const char* input_line)
-{
-	unsigned int elements_counter(0);
-	unsigned int row_counter(1);
-	unsigned int comma_counter(0);
-	for (size_t carriage = 0; carriage < strlen(input_line); carriage++)
-	{
-		if (input_line[carriage] >= char(97) || input_line[carriage] >= char(122))
-			elements_counter++;
-		else if (input_line[carriage] == ',')
-			comma_counter++;
-		else if (input_line[carriage] == ';')
-			row_counter++;
-	}
-	
-	assert(input_line[0] == '[' && input_line[strlen(input_line) - 1] == ']' &&
-			"Error, check brackets in the input data");
-	
-		
-	assert(elements_counter % row_counter == 0 && comma_counter % row_counter == 0 
-			&& "Error, please check matrix dimension or type of all input elements");
-		
-	
-	Rows = row_counter;
-	Columns = static_cast<int>(elements_counter / row_counter);
-	
-}
 
 Matrix::~Matrix()
 {
-	if (StorageData_int != nullptr)
+	if (fstorageData != nullptr)
 	{
-		if (Columns > 0)
-			for (size_t i = 0; i < Rows; i++)
-				delete[] StorageData_int[i];
-		if (Rows > 0)
-			delete[] StorageData_int;
-		StorageData_int = nullptr;
+		if (fcolumns > 0)
+		{
+			for (size_t i = 0; i < frows; i++)
+			{
+				delete[] fstorageData[i];
+			}
+				
+		}
+		if (frows > 0)
+		{
+			delete[] fstorageData;
+		}
+			
+		fstorageData = nullptr;
 		std::cout << "int destructor worked" << std::endl;
 
 	}
 }
+
+
+
+bool verifyCharinput(const char* input_line, const int& rows, const int& columns)
+{
+	bool verification_status = true;
+	size_t processing_row = rows - 1;
+	size_t processing_column = columns - 1;
+
+	for (size_t counter = 0; counter < strlen(input_line); counter++)
+	{
+		if (!verification_status)
+		{
+			break;
+		}
+		switch (input_line[counter])
+		{
+		case '[':
+		{
+			if (counter != 0 || input_line[counter + 1] < char(97) || input_line[counter + 1] > char(122))
+			{
+				verification_status = false;
+			}
+			break;
+		}
+		case ',':
+		{
+			if (input_line[counter + 1] < char(97) || input_line[counter + 1] > char(122))
+			{
+				verification_status = false;
+			}
+			processing_column--;
+			break;
+		}
+		case ' ':
+		{
+			if (input_line[counter + 1] < char(97) || input_line[counter + 1] > char(122))
+			{
+				verification_status = false;
+			}
+			break;
+		}
+		case ';':
+		{
+			verification_status = check_next_symbol(input_line[counter + 1], ' ');
+			processing_row--;
+			processing_column = columns - 1;
+			break;
+		}
+		default:
+		{
+			if (input_line[counter] >= char(97) & input_line[counter] <= char(122))
+			{
+				if (processing_row == 0 & processing_column == 0)
+				{
+					verification_status = check_next_symbol(input_line[counter + 1], ']');
+				}
+				else if (processing_column != 0)
+				{
+					verification_status = check_next_symbol(input_line[counter + 1], ',');
+				}
+				else if (processing_column == 0 & processing_row != 0)
+				{
+					verification_status = check_next_symbol(input_line[counter + 1], ';');
+				}
+			}
+
+			break;
+		}
+		}
+	}
+	return verification_status;
+}
+
+bool verifyDataInput(int** (inputData), const int& rows, const int& columns)
+{
+
+	std::vector<int> mainVerificationData;
+	std::vector<int> additionalVerificationData;
+
+	if (rows == 1 & columns == 1)
+	{
+		return false;
+		std::cout << "Invalid inputData verification";
+	}
+
+	for (size_t row = 0; row < rows; row++)
+	{
+		for (size_t column = 0; column < columns; column++)
+		{
+			mainVerificationData.push_back(int(&(inputData[row][column])));
+		}
+	}
+
+	for (size_t element = 1; element < mainVerificationData.size(); element++)
+	{
+		if (mainVerificationData[element] - mainVerificationData[element - 1] != sizeof(int*))
+		{
+			std::cout << "Invalid inputData verification" << std::endl;
+			return false;
+		}
+	}
+
+	//(row < columns) это костыль, чтобы проверять не указали ли меньше строк, чем в дейтсвительности
+	for (size_t row = 0; row < columns; row++)
+	{
+		for (size_t column = 0; column < columns; column++)
+		{
+			additionalVerificationData.push_back(int(&(inputData[row][column])));
+		}
+	}
+
+
+	if (additionalVerificationData.size() != rows * columns)
+	{
+		std::cout << "Invalid inputData verification" << std::endl;
+		return false;
+	}
+	else return true;
+
+}
+
+	
+
+
 

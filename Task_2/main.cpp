@@ -1,5 +1,4 @@
 #include "Matrix.h"
-#include<iomanip>
 
 
 int main()
@@ -13,13 +12,21 @@ int main()
 	int* input_array[4];
 	for (size_t i = 0; i < 4; i++)
 		input_array[i] = input_2d_int[i];
-	Matrix first(input_array, 4, 4);
-	first.symbolMatrixRepresentation();
 
-	char t[] = "[a,b,c;\td,e,f;\tg,h,i]";
-	Matrix second(t);
+	Matrix* first = Matrix::CreateDataIntoMatrix(input_array, 4, 4);
 
-	second.symbolMatrixRepresentation();
+	std::string check_first = first->ToString();
+
+	std::cout << "check first" << check_first << std::endl;;
+	char t[] = "[a,b,c; d,e,f]";
+	Matrix* second = Matrix::CreateStringIntoMatrix(t, 2, 3);
+	Matrix* third;
+	third = second;
+
+	std::string check_second = second->ToString();
+	std::string check_third = third->ToString();
+	std::cout << check_second << std::endl;
+	std::cout << check_third << std::endl;
 
 	return 0;
 }
