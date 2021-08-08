@@ -39,6 +39,7 @@ Matrix::Matrix(int input_number, int rows, int columns)
 	fcolumns = columns;
 	frows = rows;
 	getMemory();
+	fstorageData[0][0] = input_number;
 
 	std::cout << "int constructor worked" << std::endl;
 }
