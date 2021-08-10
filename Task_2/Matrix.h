@@ -28,6 +28,6 @@ private:
 	void getMemory();
 	
 	void initData(int** input_data = nullptr);
-	void initData(const std::vector<int> input_data);
+	void initData(const std::vector<int>& input_data);
 	void initData(const int inNumber);
 };

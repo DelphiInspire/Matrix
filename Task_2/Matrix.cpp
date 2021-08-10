@@ -150,7 +150,7 @@ void Matrix::initData(const int inNumber)
 	}
 }
 
-void Matrix::initData(const std::vector<int> input_data)
+void Matrix::initData(const std::vector<int>& input_data)
 {
 
 	for (size_t row = 0; row < rows; row++)
