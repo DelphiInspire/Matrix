@@ -13,20 +13,17 @@ int main()
 	for (size_t i = 0; i < 4; i++)
 		input_array[i] = input_2d_int[i];
 
-	Matrix* first = Matrix::CreateDataIntoMatrix(input_array, 4, 4);
+	Matrix first(input_array, 4, 4);
 
-	std::string check_first = first->ToString();
+	std::string check_first = first.ToString();
 
-	std::cout << "check first" << check_first << std::endl;;
-	char t[] = "[a,b,c; d,e,f]";
-	Matrix* second = Matrix::CreateStringIntoMatrix(t, 2, 3);
-	Matrix* third;
+	char t[] = "[125,144;156,56;145,98]";
+	Matrix second(t);
+	Matrix third;
 	third = second;
 
-	std::string check_second = second->ToString();
-	std::string check_third = third->ToString();
-	std::cout << check_second << std::endl;
-	std::cout << check_third << std::endl;
+	std::string check_second = second.ToString();
+	std::string check_third = third.ToString();
 
 	return 0;
 }
