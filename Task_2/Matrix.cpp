@@ -1,4 +1,12 @@
 #include "Matrix.h"
+#include <iostream>
+
+Matrix::Matrix()
+{
+	rows = 0;
+	columns = 0;
+	storageData = nullptr;
+}
 
 
 Matrix::Matrix(int** inData, int inRows, int inColumns)
@@ -21,7 +29,7 @@ Matrix::Matrix(int inNumber, int inRows, int inColumns)
 
 Matrix::Matrix(char* inString)
 {
-	assert(verifyCharinput(inString) && "Something gone wrong");
+	assert(isAllowCharinput(inString) && "Something gone wrong");
 }
 
 Matrix::Matrix(const Matrix& copy_matrix)
@@ -61,22 +69,7 @@ Matrix Matrix::operator=(const Matrix& copy_matrix)
 	}
 	else
 	{
-		if (storageData != nullptr)
-		{
-			if (columns > 0)
-			{
-				for (size_t row = 0; row < rows; row++)
-				{
-					delete[] storageData[row];
-				}
-			}
-			if (rows > 0)
-			{
-				delete[] storageData;
-			}
-			storageData = nullptr;
-		}
-
+		clearMemory(storageData, rows);
 		rows = copy_matrix.rows;
 		columns = copy_matrix.columns;
 		getMemory();
@@ -111,6 +104,100 @@ Matrix& Matrix::operator=(Matrix&& moving_matrix)
 		}
 		return *this;
 	}
+}
+
+Matrix Matrix::operator+(const Matrix& addMatrix)
+{
+	if (isAllowPlusMinus(*this, addMatrix))
+	{
+		Matrix result(0, addMatrix.rows, addMatrix.columns);
+		for (size_t row = 0; row < rows; row++)
+		{
+			for (size_t column = 0; column < columns; column++)
+			{
+				if (isPlusOverflow(storageData[row][column], addMatrix.storageData[row][column]))
+				{
+					return nullptr;
+				}
+				else
+				{
+					result.storageData[row][column] = storageData[row][column] + addMatrix.storageData[row][column];
+				}
+			}
+		}
+		return result;
+	}
+	else
+	{
+		return Matrix();
+	}
+	
+}
+
+Matrix Matrix::operator-(const Matrix& minusMatrix)
+{
+	if (isAllowPlusMinus(*this, minusMatrix))
+	{
+		Matrix result(0, this->rows, this->columns);
+		for (size_t row = 0; row < rows; row++)
+		{
+			for (size_t column = 0; column < columns; column++)
+			{
+				if (isMinusOverflow(storageData[row][column], minusMatrix.storageData[row][column]))
+				{
+					return nullptr;
+				}
+				else
+				{
+					result.storageData[row][column] = storageData[row][column] - minusMatrix.storageData[row][column];
+				}
+			}
+		}
+		return result;
+	}
+	else
+	{
+		return Matrix();
+	}
+}
+
+Matrix Matrix::operator*(const Matrix& multiplyMatrix)
+{
+	if (isAllowMultiply(*this, multiplyMatrix))
+	{
+		Matrix result(0, this->rows, multiplyMatrix.columns);
+		int multiplyMember{ 0 };
+		for (size_t row = 0; row < rows; row++)
+		{
+			for (size_t column = 0; column < columns; column++)
+			{
+				for (size_t insideCounter = 0; insideCounter < this->columns; insideCounter++)
+				{
+					multiplyMember += storageData[row][insideCounter] * multiplyMatrix.storageData[insideCounter][column];
+				}
+				result.storageData[row][column] = multiplyMember;
+				multiplyMember = 0;
+			}
+		}
+		return result;
+	}
+	else
+	{
+		return Matrix();
+	}
+}
+
+Matrix Matrix::operator*=(const int member)
+{
+	for (size_t row = 0; row < rows; row++)
+	{
+		for (size_t column = 0; column < columns; column++)
+		{
+			storageData[row][column] *= member;
+		}
+	}
+	return *this;
+		
 }
 
 void Matrix::getMemory()
@@ -195,7 +282,7 @@ std::string Matrix::ToString()
 	return result;
 }
 
-bool Matrix::verifyCharinput(const char* inString)
+bool Matrix::isAllowCharinput(const char* inString)
 {
 
 	size_t sizeString{ strlen(inString) }; //size of the input char*
@@ -276,7 +363,6 @@ bool Matrix::verifyCharinput(const char* inString)
 		default:
 		{
 			return false;
-			break;
 		}
 		}
 	}
@@ -287,23 +373,184 @@ bool Matrix::verifyCharinput(const char* inString)
 	return true;
 }
 
+
+int Matrix::searchDeterminant()
+{
+	if (rows == 1)
+	{
+		return storageData[0][0];
+	}
+	else if (rows == 2)
+	{
+		return (storageData[0][0] * storageData[1][1] - storageData[0][1] * storageData[1][0]);
+	}
+	else
+	{
+		int determinant = 0;
+		for (size_t column = 0; column < columns; column++)
+		{
+
+			Matrix* bufferMatrix = new Matrix(0, rows - 1, columns - 1);
+			*bufferMatrix = getMinor(0, column);
+			determinant += (pow(-1, 2 + column) * storageData[0][column] * bufferMatrix->searchDeterminant());
+			delete bufferMatrix;
+		}
+		return determinant;
+	}
+}
+
+Matrix Matrix::inverseMatrix()
+{
+	int determinant{ 0 };
+
+	determinant = searchDeterminant();
+	Matrix result(0, rows, columns);
+
+	if (determinant == 0)
+	{
+		return result;
+	}
+
+	for (size_t row = 0; row < rows; row++)
+	{
+		for (size_t column = 0; column < columns; column++)
+		{
+			result.storageData[row][column] = pow(-1, 2 + row + column) * getMinor(row, column).searchDeterminant();
+		}
+	}
+
+	result = result.transpose();
+	result *= (1 / determinant);
+
+	for (size_t row = 0; row < rows; row++)
+		for (size_t column = 0; column < columns; column++)
+		{
+			std::cout << result.storageData[row][column] << ' ';
+			if (column == columns - 1)
+			{
+				std::cout << std::endl;
+			}
+		}
+	return result;
+}
+
+Matrix Matrix::getMinor(const int row, const int column)
+{
+	Matrix bufferMatrix(0, rows - 1, columns - 1);
+	int rowCounter{ 0 };
+	int columnCounter{ 0 };
+	for (size_t innerRow = 0; innerRow < rows; innerRow++)
+	{
+		if (innerRow == row)
+		{
+			continue;
+		}
+		for (size_t innerColumn = 0; innerColumn < columns; innerColumn++)
+		{
+			if (innerColumn == column)
+			{
+				continue;
+			}
+			else
+			{
+				bufferMatrix.storageData[rowCounter][columnCounter] = storageData[innerRow][innerColumn];
+				columnCounter++;
+			}
+		}
+		columnCounter = 0;
+		rowCounter++;
+	}
+	return bufferMatrix;
+}
+
+Matrix Matrix::transpose()
+{
+	Matrix result(0, rows, columns);
+	for (size_t row = 0; row < rows; row++)
+	{
+		for (size_t column = 0; column < columns; column++)
+		{
+			result.storageData[column][row] = storageData[row][column];
+		}
+	}
+	return result;
+}
+
+void Matrix::clearMemory(int** data, const int rows)
+{
+	if (data != nullptr)
+	{
+		for (size_t row = 0; row < rows; row++)
+		{
+			delete[] data[row];
+		}
+		delete[] data;
+	}
+}
+
+bool Matrix::isAllowPlusMinus(const Matrix& first, const Matrix& second) const
+{
+	if (first.rows != second.rows || first.columns != second.columns)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+bool Matrix::isPlusOverflow(const int firstMember, const int secondMember) const
+{
+	if ((secondMember > 0 && firstMember > INT_MAX - secondMember) || (secondMember < 0 && firstMember < INT_MIN - secondMember))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
+}
+
+bool Matrix::isMinusOverflow(const int firstMember, const int secondMember) const 
+{
+	if ((secondMember > 0 && firstMember < INT_MIN + secondMember) || (secondMember < 0 && firstMember > INT_MAX + secondMember))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Matrix::isAllowMultiply(const Matrix& first, const Matrix& second) const
+{
+	if (first.columns != second.rows)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+bool Matrix::isAllowDivide(const Matrix& first, const Matrix& second) const
+{
+	if (first.columns != first.rows || first.rows != second.rows || first.columns != second.columns)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
 Matrix::~Matrix()
 {
-	if (storageData != nullptr)
-	{
-		if (columns > 0)
-		{
-			for (size_t i = 0; i < rows; i++)
-			{
-				delete[] storageData[i];
-			}
-				
-		}
-		if (rows > 0)
-		{
-			delete[] storageData;
-		}
-			
-		storageData = nullptr;
-	}
+	clearMemory(storageData, rows);
+	storageData = nullptr;
 }
