@@ -1,5 +1,5 @@
 #include "Matrix.h"
-#include <iostream>
+
 
 Matrix::Matrix()
 {
@@ -9,7 +9,7 @@ Matrix::Matrix()
 }
 
 
-Matrix::Matrix(int** inData, int inRows, int inColumns)
+Matrix::Matrix(float** inData, int inRows, int inColumns)
 {
 	columns = inColumns;
 	rows = inRows;
@@ -18,7 +18,7 @@ Matrix::Matrix(int** inData, int inRows, int inColumns)
 }
 
 
-Matrix::Matrix(int inNumber, int inRows, int inColumns)
+Matrix::Matrix(float inNumber, int inRows, int inColumns)
 {
 	columns = inColumns;
 	rows = inRows;
@@ -110,7 +110,7 @@ Matrix Matrix::operator+(const Matrix& addMatrix)
 {
 	if (isAllowPlusMinus(*this, addMatrix))
 	{
-		Matrix result(0, addMatrix.rows, addMatrix.columns);
+		Matrix result(0.0, addMatrix.rows, addMatrix.columns);
 		for (size_t row = 0; row < rows; row++)
 		{
 			for (size_t column = 0; column < columns; column++)
@@ -138,7 +138,7 @@ Matrix Matrix::operator-(const Matrix& minusMatrix)
 {
 	if (isAllowPlusMinus(*this, minusMatrix))
 	{
-		Matrix result(0, this->rows, this->columns);
+		Matrix result(0.0, this->rows, this->columns);
 		for (size_t row = 0; row < rows; row++)
 		{
 			for (size_t column = 0; column < columns; column++)
@@ -165,8 +165,8 @@ Matrix Matrix::operator*(const Matrix& multiplyMatrix)
 {
 	if (isAllowMultiply(*this, multiplyMatrix))
 	{
-		Matrix result(0, this->rows, multiplyMatrix.columns);
-		int multiplyMember{ 0 };
+		Matrix result(0.0, this->rows, multiplyMatrix.columns);
+		float multiplyMember{ 0.0 };
 		for (size_t row = 0; row < rows; row++)
 		{
 			for (size_t column = 0; column < columns; column++)
@@ -187,7 +187,7 @@ Matrix Matrix::operator*(const Matrix& multiplyMatrix)
 	}
 }
 
-Matrix Matrix::operator*=(const int member)
+Matrix Matrix::operator*=(const float member)
 {
 	for (size_t row = 0; row < rows; row++)
 	{
@@ -202,15 +202,15 @@ Matrix Matrix::operator*=(const int member)
 
 void Matrix::getMemory()
 {
-	storageData = new int* [rows];
+	storageData = new float* [rows];
 	for (size_t row = 0; row < rows; row++)
 	{
-		storageData[row] = new int[columns];
+		storageData[row] = new float[columns];
 	}
 		
 }
 
-void Matrix::initData(int** inData)
+void Matrix::initData(float** inData)
 {
 	if (inData != nullptr)
 	{
@@ -225,7 +225,7 @@ void Matrix::initData(int** inData)
 	}		
 }
 
-void Matrix::initData(const int inNumber)
+void Matrix::initData(const float inNumber)
 {
 	for (size_t row = 0; row < rows; row++)
 	{
@@ -237,7 +237,7 @@ void Matrix::initData(const int inNumber)
 	}
 }
 
-void Matrix::initData(const std::vector<int>& input_data)
+void Matrix::initData(const std::vector<float>& input_data)
 {
 
 	for (size_t row = 0; row < rows; row++)
@@ -292,7 +292,7 @@ bool Matrix::isAllowCharinput(const char* inString)
 
 	std::string bufferNumber;//collector of the char '0-9'
 
-	std::vector<int> representation_char_to_int;// collector of the convering result for data init
+	std::vector<float> representation_char_to_int;// collector of the convering result for data init
 
 	bool isStart_checking{ false }; //begin to check quantity of columns in each row
 
@@ -386,11 +386,11 @@ int Matrix::searchDeterminant()
 	}
 	else
 	{
-		int determinant = 0;
+		float determinant{ 0.0 };
 		for (size_t column = 0; column < columns; column++)
 		{
 
-			Matrix* bufferMatrix = new Matrix(0, rows - 1, columns - 1);
+			Matrix* bufferMatrix = new Matrix(0.0, rows - 1, columns - 1);
 			*bufferMatrix = getMinor(0, column);
 			determinant += (pow(-1, 2 + column) * storageData[0][column] * bufferMatrix->searchDeterminant());
 			delete bufferMatrix;
@@ -401,11 +401,11 @@ int Matrix::searchDeterminant()
 
 Matrix Matrix::inverseMatrix()
 {
-	int determinant{ 0 };
+	float determinant{ 0 };
 
 	determinant = searchDeterminant();
-	Matrix result(0, rows, columns);
-
+	Matrix result(0.0, rows, columns);
+	Matrix check(0.0, rows, columns);
 	if (determinant == 0)
 	{
 		return result;
@@ -421,11 +421,11 @@ Matrix Matrix::inverseMatrix()
 
 	result = result.transpose();
 	result *= (1 / determinant);
-
+	check = *this * result;
 	for (size_t row = 0; row < rows; row++)
 		for (size_t column = 0; column < columns; column++)
 		{
-			std::cout << result.storageData[row][column] << ' ';
+			std::cout << check.storageData[row][column] << ' ';
 			if (column == columns - 1)
 			{
 				std::cout << std::endl;
@@ -436,7 +436,7 @@ Matrix Matrix::inverseMatrix()
 
 Matrix Matrix::getMinor(const int row, const int column)
 {
-	Matrix bufferMatrix(0, rows - 1, columns - 1);
+	Matrix bufferMatrix(0.0, rows - 1, columns - 1);
 	int rowCounter{ 0 };
 	int columnCounter{ 0 };
 	for (size_t innerRow = 0; innerRow < rows; innerRow++)
@@ -465,7 +465,7 @@ Matrix Matrix::getMinor(const int row, const int column)
 
 Matrix Matrix::transpose()
 {
-	Matrix result(0, rows, columns);
+	Matrix result(0.0, rows, columns);
 	for (size_t row = 0; row < rows; row++)
 	{
 		for (size_t column = 0; column < columns; column++)
@@ -476,7 +476,7 @@ Matrix Matrix::transpose()
 	return result;
 }
 
-void Matrix::clearMemory(int** data, const int rows)
+void Matrix::clearMemory(float** data, const int rows)
 {
 	if (data != nullptr)
 	{

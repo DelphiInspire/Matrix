@@ -2,13 +2,14 @@
 #include<string>
 #include<vector>
 #include<cassert>
+#include <iostream>
 
 class Matrix
 {
 public:
 	Matrix();
-	Matrix(int inNumber, int inRows, int inColumns);//constructor int 
-	Matrix(int** inData, int inRows, int inColumns);// constructor int**
+	Matrix(float inNumber, int inRows, int inColumns);//constructor int 
+	Matrix(float** inData, int inRows, int inColumns);// constructor int**
 	Matrix(char* inString);// constructor char
 	Matrix(const Matrix& copy_matrix);//copy constructor
 	Matrix(Matrix&& moving_matrix);//moving constructor
@@ -18,7 +19,7 @@ public:
 	Matrix operator-(const Matrix& minusMatrix);
 	Matrix operator*(const Matrix& multiplyMatrix);
 	Matrix operator/(const Matrix& divideMatrix);
-	Matrix operator*=(const int member);
+	Matrix operator*=(const float member);
 	Matrix operator*=(const Matrix& multiplyMatrix);
 
 	Matrix operator=(const Matrix& copy_matrix);
@@ -31,13 +32,13 @@ public:
 private:
 	int rows; 
 	int columns;
-	int** storageData;
+	float** storageData;
 	
 	void getMemory();
-	void initData(int** input_data = nullptr);
-	void initData(const std::vector<int>& input_data);
-	void initData(const int inNumber);
-	void clearMemory(int** data, const int rows);
+	void initData(float** input_data = nullptr);
+	void initData(const std::vector<float>& input_data);
+	void initData(const float inNumber);
+	void clearMemory(float** data, const int rows);
 
 	int searchDeterminant();
 	Matrix transpose();
@@ -47,6 +48,8 @@ private:
 	bool isAllowPlusMinus(const Matrix& first, const Matrix& second) const;
 	bool isAllowMultiply(const Matrix& first, const Matrix& second) const;
 	bool isAllowDivide(const Matrix& first, const Matrix& second) const;
+
+
 	bool isPlusOverflow(const int firstMemmber, const int secondMember) const;
 	bool isMinusOverflow(const int firstMember, const int secondMember) const;
 	

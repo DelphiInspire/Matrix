@@ -1,15 +1,15 @@
 #include "Matrix.h"
-
+#include <iostream>
 
 
 int main()
 {
 
-	int input_2d_int[3][2] = {  {1, -1},
+	float input_2d_int[3][2] = {  {1, -1},
 								{2, 0},
 								{3, 0}};
 
-	int multiplyarray[4][4] = /*{ {2, 4, 5},
+	float multiplyarray[4][4] = /*{ {2, 4, 5},
 								{3, -1, 2},
 								{-4, 1, 1} }; */
 	{ {6, -5, 8, 4},
@@ -18,11 +18,11 @@ int main()
 	{ -4, 8, -8, -3 } };
 
 	
-	int* first_array[3];
+	float* first_array[3];
 	for (size_t i = 0; i < 3; i++)
 		first_array[i] = input_2d_int[i];
 
-	int* second_array[4];
+	float* second_array[4];
 	for (size_t i = 0; i < 4; i++)
 		second_array[i] = multiplyarray[i];
 
@@ -40,7 +40,8 @@ int main()
 	std::string check_second = second.ToString();
 	std::string check_third = third.ToString();
 
-
 	return 0;
+
+	
 }
 
