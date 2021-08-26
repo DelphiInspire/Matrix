@@ -1,5 +1,4 @@
 #include "Matrix.h"
-#include <iostream>
 
 
 int main()
@@ -12,10 +11,10 @@ int main()
 	float multiplyarray[4][4] = /*{ {2, 4, 5},
 								{3, -1, 2},
 								{-4, 1, 1} }; */
-	{ {6, -5, 8, 4},
-	{ 9, 7, 5, 2 },
-	{ 7, 5, 3, 7 },
-	{ -4, 8, -8, -3 } };
+	{ {6.0, -5.0, 8.0, 4.0},
+	{ 9.0, 7.0, 5.0, 2.0 },
+	{ 7.0, 5.0, 3.0, 7.0 },
+	{ -4.0, 8.0, -8.0, -3.0 } };
 
 	
 	float* first_array[3];
@@ -28,10 +27,9 @@ int main()
 
 	Matrix member_1(first_array, 3, 2);
 	Matrix member_2(second_array, 4, 4);
-	member_2.inverseMatrix();
+	member_1 = member_2 * "2"; 
 	Matrix multiplyresult;
 	multiplyresult = member_1 + member_2;
-
 	char t[] =  "[125,144,12,186;156,56,98,45;145,98,181,65;65,74,85,96]" ;
 	Matrix second(t);
 	Matrix third;
@@ -39,7 +37,6 @@ int main()
 
 	std::string check_second = second.ToString();
 	std::string check_third = third.ToString();
-
 	return 0;
 
 	
