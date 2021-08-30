@@ -1,13 +1,11 @@
 #include "Matrix.h"
 
-
 Matrix::Matrix()
 {
 	rows = 0;
 	columns = 0;
 	storageData = nullptr;
 }
-
 
 Matrix::Matrix(float** inData, size_t inRows, size_t inColumns)
 {
@@ -17,7 +15,6 @@ Matrix::Matrix(float** inData, size_t inRows, size_t inColumns)
 	initData(inData);
 }
 
-
 Matrix::Matrix(float inNumber, size_t inRows, size_t inColumns)
 {
 	columns = inColumns;
@@ -25,7 +22,6 @@ Matrix::Matrix(float inNumber, size_t inRows, size_t inColumns)
 	getMemory();
 	initData(inNumber);
 }
-
 
 Matrix::Matrix(char* inString)
 {
@@ -110,107 +106,76 @@ Matrix& Matrix::operator=(Matrix&& moving_matrix)
 	}
 }
 
-Matrix Matrix::operator+(const Matrix& addMatrix) const
+Matrix& Matrix::operator+=(const Matrix& rhsMatrix) 
 {
-	if (isAllowPlusMinus(*this, addMatrix))
+	assert(isAllowPlusMinus(rhsMatrix) && "Review matrix dimension!");
+	for (size_t row = 0; row < rows; row++)
 	{
-		Matrix result(0.0, rows, columns);
-		for (size_t row = 0; row < rows; row++)
+		for (size_t column = 0; column < columns; column++)
 		{
-			for (size_t column = 0; column < columns; column++)
-			{
-				if (isPlusOverflow(storageData[row][column], addMatrix.storageData[row][column]))
-				{
-					result.storageData[row][column] = FLT_MAX;
-				}
-				else
-				{
-					result.storageData[row][column] = storageData[row][column] + addMatrix.storageData[row][column];
-				}
-			}
+			assert(!isPlusOverflow(storageData[row][column] , rhsMatrix.storageData[row][column]) && "Float overflow!");
+			storageData[row][column] += rhsMatrix.storageData[row][column];
 		}
-		return result;
 	}
-	else
+	return *this;
+}
+
+Matrix operator+(Matrix lhs, const Matrix& rhs)
+{
+	lhs += rhs;
+	return lhs;
+}
+
+Matrix& Matrix::operator-=(const Matrix& rhsMatrix)
+{
+	assert(isAllowPlusMinus(rhsMatrix) && "Check matrix dimension!");
+	
+	for (size_t row = 0; row < rows; row++)
 	{
-		return Matrix();
+		for (size_t column = 0; column < columns; column++)
+		{
+			assert(!isMinusOverflow(storageData[row][column], rhsMatrix.storageData[row][column]) && "Float overflow!");
+			storageData[row][column] -= rhsMatrix.storageData[row][column];
+		}
+		return *this;
 	}
+}
+
+Matrix operator-(Matrix lhsMatrix, const Matrix& rhsMatrix)
+{
+	lhsMatrix -= rhsMatrix;
+	return lhsMatrix;
+}
+
+Matrix Matrix::operator*(const Matrix& rhsMatrix) const 
+{
+	assert(isAllowMultiply(rhsMatrix) && "Check matrix dimension!");
+	Matrix result(0.0, rows, columns);
+	float multiplyMember{ 0.0 };
+	for (size_t row = 0; row < rows; row++)
+	{
+		for (size_t column = 0; column < columns; column++)
+		{
+			for (size_t insideCounter = 0; insideCounter < columns; insideCounter++)
+			{
+				multiplyMember += storageData[row][insideCounter] * rhsMatrix.storageData[insideCounter][column];
+			}
+			result.storageData[row][column] = multiplyMember;
+			multiplyMember = 0;
+		}
+	}
+	return result;
 	
 }
 
-Matrix* Matrix::operator+=(const Matrix& addMatrix) 
-{
-	*this = *this + addMatrix;
-	return this;
-}
-
-Matrix Matrix::operator-(const Matrix& minusMatrix) const
-{
-	if (isAllowPlusMinus(*this, minusMatrix))
-	{
-		Matrix result(0.0, rows, columns);
-		for (size_t row = 0; row < rows; row++)
-		{
-			for (size_t column = 0; column < columns; column++)
-			{
-				if (isMinusOverflow(storageData[row][column], minusMatrix.storageData[row][column]))
-				{
-					result.storageData[row][column] = -FLT_MAX;
-				}
-				else
-				{
-					result.storageData[row][column] = storageData[row][column] - minusMatrix.storageData[row][column];
-				}
-			}
-		}
-		return result;
-	}
-	else
-	{
-		return Matrix();
-	}
-}
-
-Matrix* Matrix::operator-=(const Matrix& minusMatrix)
-{
-	*this = *this - minusMatrix;
-	return this;
-}
-
-Matrix Matrix::operator*(const Matrix& multiplyMatrix) const 
-{
-	if (isAllowMultiply(*this, multiplyMatrix))
-	{
-		Matrix result(0.0, rows, columns);
-		float multiplyMember{ 0.0 };
-		for (size_t row = 0; row < rows; row++)
-		{
-			for (size_t column = 0; column < columns; column++)
-			{
-				for (size_t insideCounter = 0; insideCounter < columns; insideCounter++)
-				{
-					multiplyMember += storageData[row][insideCounter] * multiplyMatrix.storageData[insideCounter][column];
-				}
-				result.storageData[row][column] = multiplyMember;
-				multiplyMember = 0;
-			}
-		}
-		return result;
-	}
-	else
-	{
-		return Matrix();
-	}
-}
-
-Matrix Matrix::operator*(const float multiplyMember) const
+Matrix Matrix::operator*(const float rhsMember) const
 {
 	Matrix result(0.0, rows, columns);
 	for (size_t row = 0; row < rows; row++)
 	{
 		for (size_t column = 0; column < columns; column++)
 		{
-			result.storageData[row][column] = storageData[row][column] * multiplyMember;
+			result.storageData[row][column] = storageData[row][column] * rhsMember;
 		}
 	}
 	return result;
@@ -220,42 +185,30 @@ Matrix Matrix::operator*(const char* const inString) const
 {
 	Matrix result(0.0, rows, columns);
 	std::vector<std::vector<float>> catchInput{ VerifyCharInput(inString) };
-	if (catchInput.size() != 0)
-	{
-		const float multiplyMember{ catchInput[0][0] };
-		result = *this * multiplyMember;
-		return result;
-	}
-	else
-	{
-		return result;
-	}
+	assert(catchInput.size() != 0 && "Invalid member verification!");
+	const float multiplyMember{ catchInput[0][0] };
+	result = *this * multiplyMember;
+	return result;
 }
 
-Matrix* Matrix::operator*=(const Matrix& multiplyMatrix)
+Matrix* Matrix::operator*=(const Matrix& rhsMatrix)
 {
-	*this = *this * multiplyMatrix;
+	*this = *this * rhsMatrix;
 	return this;
 }
 
-Matrix* Matrix::operator*=(const float member)
+Matrix* Matrix::operator*=(const float rhsMember)
 {
-	*this = *this * member;
+	*this = *this * rhsMember;
 	return this;
 }
 
 Matrix Matrix::operator/(const Matrix& divideMatrix) const 
 {
 	
-	if (isAllowDivide(*this, divideMatrix))
-	{
-		Matrix divider{ divideMatrix };				
-		return  *this * divider.inverseMatrix();
-	}
-	else
-	{
-		return Matrix();
-	}
+	assert(isAllowDivide(divideMatrix) && "Check matrix dimension!");
+	Matrix divider{ divideMatrix };				
+	return  *this * divider.inverseMatrix();
 }
 
 Matrix Matrix::operator/(const float divideMember) const
@@ -282,16 +235,10 @@ Matrix Matrix::operator/(const char* const inString) const
 {
 	Matrix result(0.0, rows, columns);
 	std::vector<std::vector<float>> catchInput{ VerifyCharInput(inString) };
-	if (catchInput.size() != 0)
-	{
-		const float multiplyMember{ catchInput[0][0] };
-		result = *this / multiplyMember;
-		return result;
-	}
-	else
-	{
-		return result;
-	}
+	assert(catchInput.size() != 0 && "Check matrix dimension!");
+	const float multiplyMember{ catchInput[0][0] };
+	result = *this / multiplyMember;
+	return result;
 }
 
 Matrix* Matrix::operator/=(const Matrix& divideMatrix)
@@ -305,78 +252,6 @@ Matrix* Matrix::operator/=(const float divideMember)
 {
 	*this = *this / divideMember;
 	return this;
-}
-
-bool Matrix::operator>(const Matrix& comparisonMatrix) const
-{
-	if (this->getSum() > comparisonMatrix.getSum())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool Matrix::operator<(const Matrix& comparisonMatrix) const
-{
-	if (this->getSum() < comparisonMatrix.getSum())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool Matrix::operator>=(const Matrix& comparisonMatrix) const
-{
-	if (this->getSum() >= comparisonMatrix.getSum())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool Matrix::operator<=(const Matrix& comparisonMatrix) const
-{
-	if (this->getSum() <= comparisonMatrix.getSum())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool Matrix::operator==(const Matrix& comparisonMatrix) const
-{
-	if (this->getSum() == comparisonMatrix.getSum())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool Matrix::operator!=(const Matrix& comparisonMatrix) const
-{
-	if (this->getSum() != comparisonMatrix.getSum())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
 }
 
 void Matrix::getMemory()
@@ -583,10 +458,9 @@ std::vector<std::vector<float>> Matrix::VerifyCharInput(const char* const inStri
 	return representation_char_to_FLT;
 }
 
-
 float Matrix::searchDeterminant() const
 {
-	if (isAllowDeterminant(*this))
+	if (isAllowDeterminant())
 	{
 	
 		if (rows == 1)
@@ -695,9 +569,9 @@ void Matrix::clearMemory(float** data, const size_t rows)
 	}
 }
 
-bool Matrix::isAllowPlusMinus(const Matrix& first, const Matrix& second) const
+bool Matrix::isAllowPlusMinus(const Matrix& rhsMatrix) const
 {
-	if (first.rows != second.rows || first.columns != second.columns)
+	if (rows != rhsMatrix.rows || columns != rhsMatrix.columns)
 	{
 		return false;
 	}
@@ -732,9 +606,9 @@ bool Matrix::isMinusOverflow(const float firstMember, const float secondMember) 
 	}
 }
 
-bool Matrix::isAllowMultiply(const Matrix& first, const Matrix& second) const
+bool Matrix::isAllowMultiply(const Matrix& rhsMatrix) const
 {
-	if (first.columns != second.rows)
+	if (columns != rhsMatrix.rows)
 	{
 		return false;
 	}
@@ -744,9 +618,9 @@ bool Matrix::isAllowMultiply(const Matrix& first, const Matrix& second) const
 	}
 }
 
-bool Matrix::isAllowDivide(const Matrix& first, const Matrix& second) const
+bool Matrix::isAllowDivide(const Matrix& rhsMatrix) const
 {
-	if(second.rows != second.columns || first.columns != second.rows)
+	if(rhsMatrix.rows != rhsMatrix.columns || columns != rhsMatrix.rows)
 	{
 		return false;
 	}
@@ -756,9 +630,9 @@ bool Matrix::isAllowDivide(const Matrix& first, const Matrix& second) const
 	}
 }
 
-bool Matrix::isAllowDeterminant(const Matrix& matrix) const
+bool Matrix::isAllowDeterminant() const
 {
-	if (matrix.rows != matrix.columns)
+	if (rows != columns)
 	{
 		return false;
 	}

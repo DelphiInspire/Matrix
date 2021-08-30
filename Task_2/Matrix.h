@@ -12,22 +12,23 @@ public:
 	Matrix(char* inString);// constructor char
 	Matrix(const Matrix& copy_matrix);//copy constructor
 	Matrix(Matrix&& moving_matrix);//moving constructor
+	std::string ToString();
 
 	Matrix operator=(const Matrix& copy_matrix);
 
 	Matrix& operator=(Matrix&& moving_matrix);
 
-	Matrix operator+(const Matrix& addMatrix) const;
-	Matrix* operator+=(const Matrix& addMatrix);
+	Matrix& operator+=(const Matrix& rhsMatrix);
+	friend Matrix operator+(Matrix lhsMatrix, const Matrix& rhsMatrix);
+	
+	Matrix& operator-=(const Matrix& rhsMatrix);
+	friend Matrix operator-(Matrix lhsMatrix, const Matrix& rhsMatrix);
 
-	Matrix operator-(const Matrix& minusMatrix) const;
-	Matrix* operator-=(const Matrix& minusMatrix);
-
-	Matrix operator*(const Matrix& multiplyMatrix) const;
-	Matrix operator*(const float multiplyMember) const;
+	Matrix operator*(const Matrix& rhsMatrix) const;
+	Matrix operator*(const float rhsMember) const;
 	Matrix operator*(const char* const inString) const;
-	Matrix* operator*=(const Matrix& multiplyMatrix);
-	Matrix* operator*=(const float multiplyMember);
+	Matrix* operator*=(const Matrix& rhsMatrix);
+	Matrix* operator*=(const float rhsMember);
 	
 	Matrix operator/(const Matrix& divideMatrix) const;
 	Matrix operator/(const float divideMember) const;
@@ -35,14 +36,35 @@ public:
 	Matrix* operator/=(const Matrix& divideMatrix);
 	Matrix* operator/=(const float divideMember);
 	
-	bool operator>(const Matrix& comparisonMatrix) const;
-	bool operator<(const Matrix& comparisonMatrix) const;
-	bool operator>=(const Matrix& comparisonMatrix) const;
-	bool operator<=(const Matrix& comparisonMatrix) const;
-	bool operator==(const Matrix& comparisonMatrix) const;
-	bool operator!=(const Matrix& comparisonMatrix) const;
+	friend bool operator>(const Matrix& lhsMatrix, const Matrix& rhsMatrix) 
+	{ 
+		return lhsMatrix.getSum() > rhsMatrix.getSum(); 
+	}
 
-	std::string ToString();
+	friend bool operator<(const Matrix& lhsMatrix, const Matrix& rhsMatrix)
+	{
+		return lhsMatrix.getSum() < rhsMatrix.getSum();
+	}
+
+	friend bool operator>=(const Matrix& lhsMatrix, const Matrix& rhsMatrix)
+	{
+		return !(lhsMatrix.getSum() < rhsMatrix.getSum());
+	}
+
+	friend bool operator<=(const Matrix& lhsMatrix, const Matrix& rhsMatrix)
+	{
+		return !(lhsMatrix.getSum() > rhsMatrix.getSum());
+	}
+
+	friend bool operator==(const Matrix& lhsMatrix, const Matrix& rhsMatrix)
+	{
+		return lhsMatrix.getSum() == rhsMatrix.getSum();
+	}
+
+	friend bool operator!=(const Matrix& lhsMatrix, const Matrix& rhsMatrix)
+	{
+		return !(lhsMatrix.getSum() == rhsMatrix.getSum());
+	}
 
 	~Matrix();
 private:
@@ -64,10 +86,10 @@ private:
 
 	std::vector<std::vector<float>> VerifyCharInput(const char* const inString) const;
 
-	bool isAllowPlusMinus(const Matrix& first, const Matrix& second) const;
-	bool isAllowMultiply(const Matrix& first, const Matrix& second) const;
-	bool isAllowDivide(const Matrix& first, const Matrix& second) const;
-	bool isAllowDeterminant(const Matrix& matrix) const;
+	bool isAllowPlusMinus(const Matrix& rhsMatrix) const;
+	bool isAllowMultiply(const Matrix& rhsMatrix) const;
+	bool isAllowDivide(const Matrix& rhsMatrix) const;
+	bool isAllowDeterminant() const;
 	bool isPlusOverflow(const float firstMemmber, const float secondMember) const;
 	bool isMinusOverflow(const float firstMember, const float secondMember) const;
 };
