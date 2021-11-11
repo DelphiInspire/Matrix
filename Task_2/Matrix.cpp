@@ -400,7 +400,6 @@ std::vector<std::vector<float>> Matrix::VerifyCharInput(const char* const inStri
 				{
 					representation_char_to_FLT.clear();
 					representation_char_to_FLT.shrink_to_fit();
-					//return representation_char_to_FLT
 					throw Exception_CharInputVerification();
 				}
 			}
@@ -469,7 +468,7 @@ std::vector<std::vector<float>> Matrix::VerifyCharInput(const char* const inStri
 		representation_char_to_FLT[rowCounter - 1].push_back(std::stof(bufferNumber));
 	}
 
-	if (inString == 0)
+	if (*inString == 0)
 	{
 		throw Exception_CharInputVerification();
 	}
