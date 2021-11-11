@@ -26,7 +26,6 @@ Matrix::Matrix(float inNumber, size_t inRows, size_t inColumns)
 Matrix::Matrix(char* inString)
 {
 	std::vector<std::vector<float>> catchInput(VerifyCharInput(inString));
-	assert(catchInput.size() != 0  && "Something gone wrong");
 	rows = catchInput.size();
 	columns = catchInput[0].size();
 	getMemory();
@@ -35,16 +34,10 @@ Matrix::Matrix(char* inString)
 
 Matrix::Matrix(const Matrix& copy_matrix)
 {	
-	rows = copy_matrix.rows;
-	columns = copy_matrix.columns;
-	getMemory();
-	for (size_t row = 0; row <= rows - 1; row++)
-	{
-		for (size_t colm = 0; colm <= columns - 1; colm++)
-		{
-			storageData[row][colm] = copy_matrix.storageData[row][colm];
-		}		
-	}
+	rows = 0;
+	columns = 0;
+	storageData = nullptr;
+	*this = copy_matrix;
 }
 
 Matrix::Matrix(Matrix&& moving_matrix)
@@ -58,10 +51,10 @@ Matrix::Matrix(Matrix&& moving_matrix)
 	{
 		storageData = moving_matrix.storageData;
 		moving_matrix.storageData = nullptr;
-	}	
+	}
 }
 
-Matrix Matrix::operator=(const Matrix& copy_matrix)
+Matrix& Matrix::operator=(const Matrix& copy_matrix)
 {
 	if (&copy_matrix == this)
 	{
@@ -69,6 +62,10 @@ Matrix Matrix::operator=(const Matrix& copy_matrix)
 	}
 	else
 	{
+		if (copy_matrix.rows == 0)
+		{
+			throw Exception_MemoryAllocation();
+		}
 		clearMemory(storageData, rows);
 		rows = copy_matrix.rows;
 		columns = copy_matrix.columns;
@@ -78,11 +75,11 @@ Matrix Matrix::operator=(const Matrix& copy_matrix)
 		{
 			for (size_t colm = 0; colm <= columns - 1; colm++)
 			{
-				storageData[row][colm] = copy_matrix.storageData[row][colm];
+					storageData[row][colm] = copy_matrix.storageData[row][colm];
 			}
 		}
-		return *this;
-	}
+		return *this;	
+	}	
 }
 
 Matrix& Matrix::operator=(Matrix&& moving_matrix)
@@ -108,12 +105,19 @@ Matrix& Matrix::operator=(Matrix&& moving_matrix)
 
 Matrix& Matrix::operator+=(const Matrix& rhsMatrix) 
 {
-	assert(isAllowPlusMinus(rhsMatrix) && "Review matrix dimension!");
+	if (!isAllowPlusMinus(rhsMatrix))
+	{
+		throw  Exception_IllegalPlusMinusOperation();
+	}
+
 	for (size_t row = 0; row < rows; row++)
 	{
 		for (size_t column = 0; column < columns; column++)
 		{
-			assert(!isPlusOverflow(storageData[row][column] , rhsMatrix.storageData[row][column]) && "Float overflow!");
+			if (isPlusOverflow(storageData[row][column], rhsMatrix.storageData[row][column]))
+			{
+				throw Exception_OverflowOperation();
+			}
 			storageData[row][column] += rhsMatrix.storageData[row][column];
 		}
 	}
@@ -128,13 +132,19 @@ Matrix operator+(Matrix lhs, const Matrix& rhs)
 
 Matrix& Matrix::operator-=(const Matrix& rhsMatrix)
 {
-	assert(isAllowPlusMinus(rhsMatrix) && "Check matrix dimension!");
 	
+	if (!isAllowPlusMinus(rhsMatrix))
+	{
+		throw Exception_IllegalPlusMinusOperation();
+	}
 	for (size_t row = 0; row < rows; row++)
 	{
 		for (size_t column = 0; column < columns; column++)
 		{
-			assert(!isMinusOverflow(storageData[row][column], rhsMatrix.storageData[row][column]) && "Float overflow!");
+			if (isMinusOverflow(storageData[row][column], rhsMatrix.storageData[row][column]))
+			{
+				throw Exception_OverflowOperation();
+			}
 			storageData[row][column] -= rhsMatrix.storageData[row][column];
 		}
 		return *this;
@@ -149,7 +159,10 @@ Matrix operator-(Matrix lhsMatrix, const Matrix& rhsMatrix)
 
 Matrix Matrix::operator*(const Matrix& rhsMatrix) const 
 {
-	assert(isAllowMultiply(rhsMatrix) && "Check matrix dimension!");
+	if (!isAllowMultiply(rhsMatrix))
+	{
+		throw Exception_MultiplyOperation();
+	}
 	Matrix result(0.0, rows, columns);
 	float multiplyMember{ 0.0 };
 	for (size_t row = 0; row < rows; row++)
@@ -185,7 +198,6 @@ Matrix Matrix::operator*(const char* const inString) const
 {
 	Matrix result(0.0, rows, columns);
 	std::vector<std::vector<float>> catchInput{ VerifyCharInput(inString) };
-	assert(catchInput.size() != 0 && "Invalid member verification!");
 	const float multiplyMember{ catchInput[0][0] };
 	result = *this * multiplyMember;
 	return result;
@@ -206,7 +218,10 @@ Matrix* Matrix::operator*=(const float rhsMember)
 Matrix Matrix::operator/(const Matrix& divideMatrix) const 
 {
 	
-	assert(isAllowDivide(divideMatrix) && "Check matrix dimension!");
+	if (!isAllowDivide(divideMatrix))
+	{
+		throw Exception_DivideOperation();
+	}
 	Matrix divider{ divideMatrix };				
 	return  *this * divider.inverseMatrix();
 }
@@ -292,7 +307,6 @@ void Matrix::initData(float** inData)
 		{
 			for (size_t column = 0; column < columns; column++)
 			{
-			
 				storageData[row][column] = inData[row][column];
 			}
 		}
@@ -305,7 +319,6 @@ void Matrix::initData(const float inNumber)
 	{
 		for (size_t colm = 0; colm < columns; colm++)
 		{
-
 			storageData[row][colm] = inNumber;
 		}
 	}
@@ -356,7 +369,6 @@ std::string Matrix::ToString()
 
 std::vector<std::vector<float>> Matrix::VerifyCharInput(const char* const inString) const 
 {
-
 	size_t sizeString{ strlen(inString) }; //size of the input char*
 	size_t rowCounter{ 1 };
 	size_t columnCounter{ 1 };
@@ -388,7 +400,8 @@ std::vector<std::vector<float>> Matrix::VerifyCharInput(const char* const inStri
 				{
 					representation_char_to_FLT.clear();
 					representation_char_to_FLT.shrink_to_fit();
-					return representation_char_to_FLT;
+					//return representation_char_to_FLT
+					throw Exception_CharInputVerification();
 				}
 			}
 			representation_char_to_FLT[rowCounter - 1].push_back(std::stof(bufferNumber));
@@ -447,7 +460,7 @@ std::vector<std::vector<float>> Matrix::VerifyCharInput(const char* const inStri
 		{
 			representation_char_to_FLT.clear();
 			representation_char_to_FLT.shrink_to_fit();
-			return representation_char_to_FLT;
+			throw Exception_CharInputVerification();
 		}
 		}
 	}
@@ -455,6 +468,12 @@ std::vector<std::vector<float>> Matrix::VerifyCharInput(const char* const inStri
 	{
 		representation_char_to_FLT[rowCounter - 1].push_back(std::stof(bufferNumber));
 	}
+
+	if (inString == 0)
+	{
+		throw Exception_CharInputVerification();
+	}
+
 	return representation_char_to_FLT;
 }
 
@@ -559,7 +578,7 @@ Matrix Matrix::transpose() const
 
 void Matrix::clearMemory(float** data, const size_t rows)
 {
-	if (data != nullptr)
+	if (rows != 0)
 	{
 		for (size_t row = 0; row < rows; row++)
 		{

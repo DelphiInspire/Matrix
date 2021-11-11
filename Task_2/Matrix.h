@@ -2,6 +2,8 @@
 #include<string>
 #include<vector>
 #include<cassert>
+#include"Exception.h"
+#include<string>
 
 class Matrix
 {
@@ -14,7 +16,7 @@ public:
 	Matrix(Matrix&& moving_matrix);//moving constructor
 	std::string ToString();
 
-	Matrix operator=(const Matrix& copy_matrix);
+	Matrix& operator=(const Matrix& copy_matrix);
 
 	Matrix& operator=(Matrix&& moving_matrix);
 
@@ -85,7 +87,7 @@ private:
 	float getSum() const;
 
 	std::vector<std::vector<float>> VerifyCharInput(const char* const inString) const;
-
+protected:
 	bool isAllowPlusMinus(const Matrix& rhsMatrix) const;
 	bool isAllowMultiply(const Matrix& rhsMatrix) const;
 	bool isAllowDivide(const Matrix& rhsMatrix) const;
