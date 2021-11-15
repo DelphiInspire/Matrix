@@ -1,5 +1,4 @@
 #include "Matrix.h"
-#include <iostream>
 
 
 int main()
@@ -32,7 +31,7 @@ int main()
 		member_2 = member_2  * "2";
 		Matrix multiplyresult;
 		multiplyresult = member_1 - member_2;
-		char t[] = "[125,144,12,186;156,56,9845;145,98,181,65;65,74,85,96]";
+		char t[] = "[125,144,12,186;156,56,98,45;145,98,181,65;65,74,85,96]";
 		Matrix second(t);
 		Matrix third;
 		third = second;

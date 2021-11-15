@@ -64,7 +64,7 @@ Matrix& Matrix::operator=(const Matrix& copy_matrix)
 	{
 		if (copy_matrix.rows == 0)
 		{
-			throw Exception_MemoryAllocation();
+			throw MemoryAllocException();
 		}
 		clearMemory(storageData, rows);
 		rows = copy_matrix.rows;
@@ -107,7 +107,7 @@ Matrix& Matrix::operator+=(const Matrix& rhsMatrix)
 {
 	if (!isAllowPlusMinus(rhsMatrix))
 	{
-		throw  Exception_IllegalPlusMinusOperation();
+		throw  PlusMinusException();
 	}
 
 	for (size_t row = 0; row < rows; row++)
@@ -116,7 +116,7 @@ Matrix& Matrix::operator+=(const Matrix& rhsMatrix)
 		{
 			if (isPlusOverflow(storageData[row][column], rhsMatrix.storageData[row][column]))
 			{
-				throw Exception_OverflowOperation();
+				throw OverflowException();
 			}
 			storageData[row][column] += rhsMatrix.storageData[row][column];
 		}
@@ -135,7 +135,7 @@ Matrix& Matrix::operator-=(const Matrix& rhsMatrix)
 	
 	if (!isAllowPlusMinus(rhsMatrix))
 	{
-		throw Exception_IllegalPlusMinusOperation();
+		throw PlusMinusException();
 	}
 	for (size_t row = 0; row < rows; row++)
 	{
@@ -143,7 +143,7 @@ Matrix& Matrix::operator-=(const Matrix& rhsMatrix)
 		{
 			if (isMinusOverflow(storageData[row][column], rhsMatrix.storageData[row][column]))
 			{
-				throw Exception_OverflowOperation();
+				throw OverflowException();
 			}
 			storageData[row][column] -= rhsMatrix.storageData[row][column];
 		}
@@ -161,7 +161,7 @@ Matrix Matrix::operator*(const Matrix& rhsMatrix) const
 {
 	if (!isAllowMultiply(rhsMatrix))
 	{
-		throw Exception_MultiplyOperation();
+		throw MultiplyException();
 	}
 	Matrix result(0.0, rows, columns);
 	float multiplyMember{ 0.0 };
@@ -220,7 +220,7 @@ Matrix Matrix::operator/(const Matrix& divideMatrix) const
 	
 	if (!isAllowDivide(divideMatrix))
 	{
-		throw Exception_DivideOperation();
+		throw DivideException();
 	}
 	Matrix divider{ divideMatrix };				
 	return  *this * divider.inverseMatrix();
@@ -400,7 +400,7 @@ std::vector<std::vector<float>> Matrix::VerifyCharInput(const char* const inStri
 				{
 					representation_char_to_FLT.clear();
 					representation_char_to_FLT.shrink_to_fit();
-					throw Exception_CharInputVerification();
+					throw InputVerificationException();
 				}
 			}
 			representation_char_to_FLT[rowCounter - 1].push_back(std::stof(bufferNumber));
@@ -459,7 +459,7 @@ std::vector<std::vector<float>> Matrix::VerifyCharInput(const char* const inStri
 		{
 			representation_char_to_FLT.clear();
 			representation_char_to_FLT.shrink_to_fit();
-			throw Exception_CharInputVerification();
+			throw InputVerificationException();
 		}
 		}
 	}
@@ -470,7 +470,7 @@ std::vector<std::vector<float>> Matrix::VerifyCharInput(const char* const inStri
 
 	if (*inString == 0)
 	{
-		throw Exception_CharInputVerification();
+		throw InputVerificationException();
 	}
 
 	return representation_char_to_FLT;

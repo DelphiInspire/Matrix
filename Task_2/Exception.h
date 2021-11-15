@@ -1,69 +1,65 @@
 #pragma once
 #include<iostream>
 
-struct exceptionInfo
-{
-	const char* description;
-	bool isDeterminated;
-};
-
 
 class Exception
 {
 private:
-	exceptionInfo explenation;
+	const char* explenation;
 public:
 	Exception() {};
-	Exception(const char* const msg) 
-	{
-		explenation.description = msg;
-		explenation.isDeterminated = true;
-	};
+	Exception(const char* const msg) : explenation{ msg } {};
+
 	virtual const char* what() const
 	{
-		return explenation.description;
+		return explenation;
 	}
+
+	virtual ~Exception() {};
 };
 
-class Exception_CharInputVerification : public Exception
+class InputVerificationException : public Exception
 {
 public:
-	Exception_CharInputVerification() : Exception{ "Wrong char input verification" }{};
+	InputVerificationException() : Exception{ "Wrong char input verification" }{};
+	virtual ~InputVerificationException() {};
 };
 
-class Exception_MemoryAllocation : public Exception
+class MemoryAllocException : public Exception
 {
 public:
-	Exception_MemoryAllocation() : Exception{ "Bad memory allocation" } {};
+	MemoryAllocException() : Exception{ "Bad memory allocation" } {};
+	virtual ~MemoryAllocException() {};
 };
 
 
-class Exception_IllegalPlusMinusOperation : public Exception
+class PlusMinusException : public Exception
 {
 public:
-	Exception_IllegalPlusMinusOperation() : 
+	PlusMinusException() : 
 				Exception{ "Illegal plus/minus operation, matrix dimensions must be equal" } {};
+	virtual ~PlusMinusException() {};
 };
 
-class Exception_OverflowOperation : public Exception
+class OverflowException : public Exception
 {
-private:
-	exceptionInfo explenation;
+
 public:
-	Exception_OverflowOperation() :
-		Exception{ "Overflow error" } {};
+	OverflowException() : Exception{ "Overflow error" } {};
+	virtual ~OverflowException() {};
 };
 
-class Exception_MultiplyOperation : public Exception
+class MultiplyException : public Exception
 {
 public:
-	Exception_MultiplyOperation() :
-		Exception{ "Illegal multiply operation, check right dimensions of matrix"} {};
+	MultiplyException() : Exception{ "Illegal multiply operation, check right dimensions of matrix"} {};
+	virtual ~MultiplyException() {};
 };
 
-class Exception_DivideOperation : public Exception
+class DivideException : public Exception
 {
 public:
-	Exception_DivideOperation() :
+	DivideException() :
 		Exception{ "Illegal divide operation, check right dimensions of matrix" } {};
+	virtual ~DivideException() {};
 };
