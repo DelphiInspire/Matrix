@@ -250,7 +250,6 @@ Matrix Matrix::operator/(const char* const inString) const
 {
 	Matrix result(0.0, rows, columns);
 	std::vector<std::vector<float>> catchInput{ VerifyCharInput(inString) };
-	assert(catchInput.size() != 0 && "Check matrix dimension!");
 	const float multiplyMember{ catchInput[0][0] };
 	result = *this / multiplyMember;
 	return result;

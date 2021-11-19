@@ -1,9 +1,7 @@
 #pragma once
 #include<string>
 #include<vector>
-#include<cassert>
 #include"Exception.h"
-#include<string>
 
 class Matrix
 {

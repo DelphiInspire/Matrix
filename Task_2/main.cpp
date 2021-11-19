@@ -40,11 +40,11 @@ int main()
 	}
 	catch (Exception & wrong)
 	{
-		std::cout << wrong.what() << std::endl;
+		std::string description = wrong.what();
 	}
 	catch (...)
 	{
-		std::cout << "Unexpected exception" << std::endl;
+
 	}
 	return 0;
 
