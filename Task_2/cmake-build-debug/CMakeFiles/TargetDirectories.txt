@@ -1,0 +1,3 @@
+/Users/serhii/FoxMinded/FoxPets/task_no2/Task_2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/serhii/FoxMinded/FoxPets/task_no2/Task_2/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/serhii/FoxMinded/FoxPets/task_no2/Task_2/cmake-build-debug/CMakeFiles/Task_2.dir
